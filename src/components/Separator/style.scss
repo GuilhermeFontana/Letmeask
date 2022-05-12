@@ -1,0 +1,36 @@
+.separator {
+    font-size: 14px;
+    color: #a8a8a8;
+
+    margin: 32px 0;
+    display: flex;
+    align-items: center;
+
+    &::before {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #a8a8a8;
+    }
+
+    &::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background: #a8a8a8;
+    }
+
+}
+
+.with-text {
+    &::after {
+        content: '';
+        margin-left: 16px;
+    }
+
+    &::before {
+        content: '';
+        margin-right: 16px;
+    }
+}
+    
