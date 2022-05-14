@@ -1,0 +1,115 @@
+#page-home {
+  display: flex;
+  align-items: stretch;
+  height: 100vh;
+  overflow: hidden;  
+
+  .rooms {
+    flex: 10;
+
+    background-color: #835afd;
+    color: #fff;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+
+    padding: 20px 0px;
+
+    strong {
+      font-family: "Poppins", sans-serif;
+      font-weight: 700;
+      font-size: 36px;
+      
+      line-height: 42px;
+
+      margin: 32px 32px;
+      text-align: left;
+    }
+
+    .rooms-list {
+      padding: 50px 15px;
+      
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      list-style-type: auto;
+      justify-items: flex-start;
+      
+      gap: 2rem;
+      margin: 0 2rem;
+      padding: 0;
+      
+      overflow-y: auto;
+    }
+  }
+
+  main {
+    flex: 3;
+
+    padding: 0 32px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .main-content {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    max-width: 320px;
+    align-items: stretch;
+    text-align: center;
+
+    > img {
+      align-self: center;
+    }
+
+    h2 { 
+      font-size: 24px;
+      margin: 64px 0 24px;
+      font-family: 'Poppins', sans-serif;
+    }
+
+    form {
+      input {
+        height: 50px;
+        border-radius: 8px;
+        padding: 0 16px;
+        background: #fff;
+        border: 1px solid #a8a8b3;
+      }      
+
+      button {
+        margin-top: 16px;
+      }
+
+      button, input {
+        width: 100%;
+      }
+    }
+
+    p {
+      font-size: 14px;
+      color: #737380;
+      margin-top: 16px;
+
+      a { 
+        color: #e559f9
+      }
+    }
+  }
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #835afd; 
+}
+::-webkit-scrollbar-thumb {
+  background: #e559f9; 
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #e559f9; 
+}

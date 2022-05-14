@@ -31,8 +31,6 @@ export function Room() {
     async function handleSendQuestion(event: FormEvent) {
         event.preventDefault();
 
-        console.log(event)
-
         if (!user && newQuestion.trim() !== '') {
             toast.error("Você não está logado", {duration: 3000})
             return;
