@@ -14,7 +14,9 @@ export function Card (props: CardProps) {
     const [transitionState, setTransitionState] = useState(false)
 
     useEffect(() => {
-        setTransitionState(true)
+        setTimeout(function () {
+            setTransitionState(true)}, 500
+        )
     }, [])
     
     function adjustText(text: string){

@@ -1,4 +1,5 @@
 import { useHistory, useParams } from 'react-router-dom'
+import { FormEvent, useState } from 'react'
 
 import { useRoom } from '../hooks/useRoom'
 // import { useAuth } from '../hooks/useAuth'
@@ -11,8 +12,10 @@ import { Question } from '../components/Question'
 import toast, { Toaster } from 'react-hot-toast'
 
 import logoImg from '../assets/images/logo.svg'
-import checkImg from '../assets/images/check.svg'
+import starImg from '../assets/images/star.svg'
 import answerImg from '../assets/images/answer.svg'
+import deleteImg from '../assets/images/delete.svg'
+import deleteAwnserImg from '../assets/images/delete-awnser.svg'
 
 import '../styles/room.scss'
 
@@ -27,6 +30,8 @@ export function AdminRoom() {
     const history = useHistory();
     const { id: roomId } = useParams<RoomParams>();
     const {questions, title} = useRoom(roomId);
+    // eslint-disable-next-line
+    const [answerVisibility, setAnswerVisibility] = useState(0)
     
     
     //#region EndRoom
@@ -51,17 +56,25 @@ export function AdminRoom() {
     //#endregion EndRoom
 
     //#region CheckQuestionAsAnswered
-    async function executeCheckQuestionAsAnswered(questionId: string){
-        return await new Promise(async function(resolve, reject) {
-            await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
-                isAnswered: true
-            })
-                .then(() => resolve(true))
-                .catch((err) => reject(err)); 
+    async function handleShowSendAnswer(questionId: string){
+        questions.forEach(question => {
+            if (question.id === questionId)
+                question.answer = ' '
+        })
+        
+        setAnswerVisibility(Math.random())
+    }
+    async function executeSandAnswer(event: FormEvent, newAnswer: string, questionId: string) {
+        event.preventDefault();
+
+        await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+            answer: newAnswer?.trim()
         })
     }
-    async function handleCheckQuestionAsAnswered(questionId: string){
-        await toast.promise(executeCheckQuestionAsAnswered(questionId), {
+    async function handleSendAnswer(event: FormEvent, newAnswer: string, questionId: string) {
+        event.preventDefault();
+
+        await toast.promise(executeSandAnswer(event, newAnswer, questionId), {
             loading: 'Marcando...',
             success: <p>Pergunta marcada como respondida</p>,
             error: <p>Erro ao marcar a pergunta como respondida</p>,
@@ -70,21 +83,24 @@ export function AdminRoom() {
     //#endregion CheckQuestionAsAnswered
 
     //#region HighlightQuestion
-    async function execureHighlightQuestion(questionId: string){
+    async function execureHighlightQuestion(questionId: string, isHighlighted: boolean){
         return await new Promise(async function(resolve, reject) {
             await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
-                isHighlighted: true
+                isHighlighted: !isHighlighted
             })
                 .then(() => resolve(true))
                 .catch((err) => reject(err)); 
         })
 
     }
-    async function handleHighlightQuestion(questionId: string){
-        await toast.promise(execureHighlightQuestion(questionId), {
+    async function handleHighlightQuestion(questionId: string, isHighlighted: boolean){
+        const succesMessage = isHighlighted ? "Destaque removido" : "Pergunta destacada";
+        const errorMessage = isHighlighted ? "Erro ao remover destaque da pergunta" : "Erro ao destacar a pergunta";
+
+        await toast.promise(execureHighlightQuestion(questionId, isHighlighted), {
             loading: 'Destacando...',
-            success: <p>Pergunta destacada</p>,
-            error: <p>Erro ao destacar a pergunta</p>,
+            success: <p>{succesMessage}</p>,
+            error: <p>{errorMessage}</p>,
           })
     }
     //#endregion HighlightQuestion
@@ -125,7 +141,45 @@ export function AdminRoom() {
     }
     //#endregion DeleteQUestion
 
-    
+    //#region DeleteAnswer
+    async function executeDeleteAnswer(questionId: string) {
+        return await new Promise(async function(resolve, reject) {
+            await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+                answer: ''
+            })
+                .then(() => resolve(true))
+                .catch((err) => reject(err)); 
+        })
+    }
+    async function handleDeleteAnswer (questionId: string) {
+        toast.dismiss();
+
+        toast((t) => (
+            <div className="toast">
+                <div className="texts">
+                    <strong> Realmente deseja remover a resposta?</strong>
+                    <p />
+                    <span>ou aguarde para cancelar</span>
+                </div>
+                <button 
+                    onClick={async () => {
+                        toast.dismiss();
+
+                        await toast.promise(executeDeleteAnswer(questionId), {
+                                loading: 'Removendo...',
+                                success: <p>Resposta Removida</p>,
+                                error: <p>Erro ao remover a resposta</p>,
+                              })
+                    }}
+                    >
+                    Sim
+                </button>
+            </div>
+        ))
+    }
+    //#endregion DeleteQUestion
+
+
     return (
         <div id="page-room">  
             <header>
@@ -148,37 +202,56 @@ export function AdminRoom() {
                         return (
                             <Question
                                 key={question.id}
+                                questionId={question.id}
                                 content={question.content}
                                 author={question.author}
-                                isAnswered={question.isAnswered}
+                                answer={question.answer}
                                 isHighlighted={question.isHighlighted}
+                                handleSendAnswer={handleSendAnswer}
+                                footerChildren={
+                                    !question.answer?.trim() &&
+                                        <div className="send-awnser-action">
+                                            <Button type="submit">Enviar</Button>
+                                        </div>
+                                }
                             >
-                                {(!question.isAnswered ?? false) && (
-                                    <>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleCheckQuestionAsAnswered(question.id)}
-                                        >
-                                            <img src={checkImg} alt="Marcar pergunta como respondida"/>
-                                        </button>
-                                        <button
-                                            type="button"
-                                            onClick={() => handleHighlightQuestion(question.id)}
-                                        >
-                                            <img src={answerImg} alt="Destacar pergunta"/>
-                                        </button>
-                                    </>
-                                )}
-                                <button
-                                    className="remove-button"
-                                    type="button"
-                                    onClick={() => handleDeleteQuestion(question.id)}
-                                >
-                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                        <path d="M3 5.99988H5H21" stroke="#737380" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                        <path d="M8 5.99988V3.99988C8 3.46944 8.21071 2.96074 8.58579 2.58566C8.96086 2.21059 9.46957 1.99988 10 1.99988H14C14.5304 1.99988 15.0391 2.21059 15.4142 2.58566C15.7893 2.96074 16 3.46944 16 3.99988V5.99988M19 5.99988V19.9999C19 20.5303 18.7893 21.039 18.4142 21.4141C18.0391 21.7892 17.5304 21.9999 17 21.9999H7C6.46957 21.9999 5.96086 21.7892 5.58579 21.4141C5.21071 21.039 5 20.5303 5 19.9999V5.99988H19Z" stroke="#737380" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
-                                    </svg>
-                                </button>
+                                <div>
+                                    <button
+                                        type="button"
+                                        onClick={() => handleHighlightQuestion(question.id, question.isHighlighted)}
+                                    >
+                                        <img src={starImg} alt="Destacar pergunta"/>
+                                    </button>
+                                    {(!question?.answer ?  (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleShowSendAnswer(question.id)}
+                                            >
+                                                <img src={answerImg} alt="Marcar pergunta como respondida"/>
+                                            </button>
+                                        </>
+                                    )
+                                    :
+                                    (
+                                        <>
+                                            <button
+                                                type="button"
+                                                onClick={() => handleDeleteAnswer(question.id)}
+                                            >
+                                                    <img src={deleteAwnserImg} alt="Remover resposta"/>
+                                            </button>
+                                        </>
+                                    )
+                                    )}
+                                    <button
+                                        type="button"
+                                        onClick={() => handleDeleteQuestion(question.id)}
+                                    >
+                                        <img src={deleteImg} alt="Remover pergunta"/>
+                                    </button>
+                                </div>
+                                
                             </Question>
                         )
                     }).reverse()}

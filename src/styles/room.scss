@@ -56,6 +56,12 @@
 
         .questions-list { 
             margin: 32px auto;
+            
+            .send-awnser-action {
+                display: flex;
+                justify-content: end;
+                margin-top: 5px;
+            }
         }
 
         form { 

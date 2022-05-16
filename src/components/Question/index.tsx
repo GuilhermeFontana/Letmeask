@@ -5,33 +5,38 @@ import './style.scss'
 
 type QuestionProps = {
     children?: ReactNode;
+    footerChildren?: ReactNode;
+    questionId: string;
     content: string;
     author: {
         nome: string;
         avatar: string
     };
-    isAnswered?: boolean;
+    answer?: string;
     isHighlighted?: boolean;
+    handleSendAnswer: Function;
 };
 
-export function Question(props: QuestionProps) { 
+export function Question(props: QuestionProps) {
     const [transitionState, setTransitionState] = useState(false)
+    const [newAnswer, setNewAnswer] = useState(props.answer?.trim());
 
     useEffect(() => {
-        setTransitionState(true)
+        setTimeout(function () {
+            setTransitionState(true)}, 500
+        )
     }, [])
 
     return (
-        <div 
+        <div
             className={cn(
-                'question', 
-                {answered: props?.isAnswered ?? false},
-                {highlighted: (props?.isHighlighted && !props?.isAnswered) ?? false},
+                'question',
+                {highlighted: props?.isHighlighted ? true : false ?? false},
                 {hidden: !transitionState}
             )}
-        >   
+        >
             <p>{props.content}</p>
-            <footer>
+            <div className="children">
                 <div className="user-info">
                     <img src={props.author.avatar} alt={props.author.nome}/>
                     <span></span>
@@ -39,7 +44,18 @@ export function Question(props: QuestionProps) {
                 <div>
                     {props.children}
                 </div>
-            </footer>
+            </div>
+            { <footer className={`answer ${!props?.answer ? 'hidden' : ''}`}>
+                <form onSubmit={event => {props.handleSendAnswer(event, newAnswer, props.questionId)}}>
+                    <textarea
+                        placeholder="Resposta..."
+                        disabled={props?.answer?.trim() ? true : false}
+                        value={newAnswer}
+                        onChange={event => setNewAnswer(event.target.value)}
+                    />
+                    {props?.footerChildren}
+                </form>
+            </footer> }
         </div>
     )
 }
