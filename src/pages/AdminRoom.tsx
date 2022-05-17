@@ -1,8 +1,8 @@
 import { useHistory, useParams } from 'react-router-dom'
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 
 import { useRoom } from '../hooks/useRoom'
-// import { useAuth } from '../hooks/useAuth'
+import { useAuth } from '../hooks/useAuth'
 
 import { database } from '../services/firebase'
 
@@ -26,22 +26,28 @@ type RoomParams = {
 
 
 export function AdminRoom() {
-    //const { user } = useAuth();
+    const { user } = useAuth();
     const history = useHistory();
-    const { id: roomId } = useParams<RoomParams>();
-    const {questions, title} = useRoom(roomId);
+    const { id: roomCode } = useParams<RoomParams>();
+    const {questions, title, author} = useRoom(roomCode);
     // eslint-disable-next-line
     const [answerVisibility, setAnswerVisibility] = useState(0)
-    
-    
+
+    useEffect( () => {
+        if (author && user?.id !== author)
+            history.push(`/rooms/${roomCode}`)
+
+    // eslint-disable-next-line
+    }, [user?.id, author])
+
     //#region EndRoom
     async function executeEndRoom() {
         return await new Promise(async function(resolve, reject) {
-            await database.ref(`rooms/${roomId}`).update({
+            await database.ref(`rooms/${roomCode}`).update({
                 endedAt: new Date()
             })
                 .then(() => resolve(true))
-                .catch((err) => reject(err)); 
+                .catch((err) => reject(err));
         })
     }
     async function handleEndRoom() {
@@ -55,19 +61,19 @@ export function AdminRoom() {
     }
     //#endregion EndRoom
 
-    //#region CheckQuestionAsAnswered
+    //#region SendAnswer
     async function handleShowSendAnswer(questionId: string){
         questions.forEach(question => {
             if (question.id === questionId)
                 question.answer = ' '
         })
-        
+
         setAnswerVisibility(Math.random())
     }
     async function executeSandAnswer(event: FormEvent, newAnswer: string, questionId: string) {
         event.preventDefault();
 
-        await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+        await database.ref(`rooms/${roomCode}/questions/${questionId}`).update({
             answer: newAnswer?.trim()
         })
     }
@@ -80,16 +86,16 @@ export function AdminRoom() {
             error: <p>Erro ao marcar a pergunta como respondida</p>,
           })
     }
-    //#endregion CheckQuestionAsAnswered
+    //#endregion SendAnswer
 
     //#region HighlightQuestion
     async function execureHighlightQuestion(questionId: string, isHighlighted: boolean){
         return await new Promise(async function(resolve, reject) {
-            await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+            await database.ref(`rooms/${roomCode}/questions/${questionId}`).update({
                 isHighlighted: !isHighlighted
             })
                 .then(() => resolve(true))
-                .catch((err) => reject(err)); 
+                .catch((err) => reject(err));
         })
 
     }
@@ -108,9 +114,9 @@ export function AdminRoom() {
     //#region DeleteQUestion
     async function executeDeleteQUestion(questionId: string) {
         return await new Promise(async function(resolve, reject) {
-            await database.ref(`rooms/${roomId}/questions/${questionId}`).remove()
+            await database.ref(`rooms/${roomCode}/questions/${questionId}`).remove()
                 .then(() => resolve(true))
-                .catch((err) => reject(err)); 
+                .catch((err) => reject(err));
         })
     }
     async function handleDeleteQuestion (questionId: string) {
@@ -123,7 +129,7 @@ export function AdminRoom() {
                     <p />
                     <span>ou aguarde para cancelar</span>
                 </div>
-                <button 
+                <button
                     onClick={async () => {
                         toast.dismiss();
 
@@ -144,11 +150,11 @@ export function AdminRoom() {
     //#region DeleteAnswer
     async function executeDeleteAnswer(questionId: string) {
         return await new Promise(async function(resolve, reject) {
-            await database.ref(`rooms/${roomId}/questions/${questionId}`).update({
+            await database.ref(`rooms/${roomCode}/questions/${questionId}`).update({
                 answer: ''
             })
                 .then(() => resolve(true))
-                .catch((err) => reject(err)); 
+                .catch((err) => reject(err));
         })
     }
     async function handleDeleteAnswer (questionId: string) {
@@ -161,7 +167,7 @@ export function AdminRoom() {
                     <p />
                     <span>ou aguarde para cancelar</span>
                 </div>
-                <button 
+                <button
                     onClick={async () => {
                         toast.dismiss();
 
@@ -181,12 +187,12 @@ export function AdminRoom() {
 
 
     return (
-        <div id="page-room">  
+        <div id="page-room">
             <header>
                 <div className="content">
                     <img src={logoImg} alt="Letmeask" />
                     <div>
-                        <RoomCode code={ roomId } />
+                        <RoomCode code={ roomCode } />
                         <Button isOutlined onClick={handleEndRoom}>Encerrar Sala</Button>
                     </div>
                 </div>
@@ -251,14 +257,14 @@ export function AdminRoom() {
                                         <img src={deleteImg} alt="Remover pergunta"/>
                                     </button>
                                 </div>
-                                
+
                             </Question>
                         )
                     }).reverse()}
                 </div>
 
                 <div>
-                    <Toaster 
+                    <Toaster
                         position="top-center"
                         reverseOrder={false}
                     />
