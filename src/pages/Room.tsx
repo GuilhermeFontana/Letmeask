@@ -23,10 +23,10 @@ type RoomParams = {
 
 export function Room() {
     const { user } = useAuth();
-    const { id: roomId } = useParams<RoomParams>();
+    const { id: roomCode } = useParams<RoomParams>();
     const history = useHistory()
     const [newQuestion, setNewQuestion] = useState('');
-    const {questions, title} = useRoom(roomId);
+    const {questions, title} = useRoom(roomCode);
 
     async function handleSendQuestion(event: FormEvent) {
         event.preventDefault();
@@ -55,7 +55,7 @@ export function Room() {
             answer: ''
         }
 
-        const { key } = await database.ref(`rooms/${roomId}/questions`).push(question)
+        const { key } = await database.ref(`rooms/${roomCode}/questions`).push(question)
 
         if (key){
             setNewQuestion('')
@@ -69,9 +69,9 @@ export function Room() {
     
     async function handleLikeQuestion(questionId: string, likeId?: string) { 
         if (likeId)
-            await database.ref(`rooms/${roomId}/questions/${questionId}/likes/${likeId}`).remove()
+            await database.ref(`rooms/${roomCode}/questions/${questionId}/likes/${likeId}`).remove()
         else 
-            await database.ref(`rooms/${roomId}/questions/${questionId}/likes`).push({
+            await database.ref(`rooms/${roomCode}/questions/${questionId}/likes`).push({
                 authorId: user?.id,
             })  
             
@@ -83,7 +83,7 @@ export function Room() {
             <header>
                 <div className="content">
                     <img src={logoImg} alt="Letmeask" />
-                    <RoomCode code={ roomId } />
+                    <RoomCode code={ roomCode } />
                 </div>
             </header>
             <main >

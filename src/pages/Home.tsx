@@ -36,7 +36,7 @@ export function Home() {
     const roomRef = await database.ref(`rooms/${roomCode}`).get();
     
     if (!roomRef.exists()) {
-      alert('Sala não encontrada')
+      toast.error('Sala não encontrada')
       return;
     }
 
@@ -59,7 +59,7 @@ export function Home() {
         <div className="main-content">
           <img src={logoImg} alt="Letmeask" />
           <ButtonGoogle 
-            text="Crie sua sala com o Google"
+            text="Entre com o Google e crie suas salas"
             onClick={handleCreateRoom}
           />
           <Separator text="ou entre em uma sala"/>
@@ -76,7 +76,7 @@ export function Home() {
 
         <div>
             <Toaster 
-                position="top-center"
+                position="bottom-right"
                 reverseOrder={false}
             />
         </div>

@@ -31,14 +31,14 @@ type QuestionType = {
 }
 
 
-export function useRoom (roomId: string) { 
+export function useRoom (roomCode: string) { 
     const { user } = useAuth();
     const [questions, setQuestions] = useState<QuestionType[]>([])
     const [title, setTitle] = useState('')
     const [author, setAuthor] = useState('')
 
     useEffect(() => {
-        const roomRef = database.ref(`rooms/${roomId}`)
+        const roomRef = database.ref(`rooms/${roomCode}`)
 
         roomRef.on('value', room => {
             const databaseRoom = room.val()
@@ -66,7 +66,7 @@ export function useRoom (roomId: string) {
             roomRef.off('value')
         }
 
-    }, [roomId, user?.id])
+    }, [roomCode, user?.id])
 
     return {
         questions,

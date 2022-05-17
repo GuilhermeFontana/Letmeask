@@ -1,15 +1,17 @@
 import { FormEvent, useEffect, useState } from "react";
 import { Link, useHistory } from "react-router-dom";
 
+import toast, { Toaster } from 'react-hot-toast'
+
 import { database } from "../services/firebase";
 import { useAuth } from "../hooks/useAuth";
 
 import { Button } from "../components/Button";
+import { Card } from "../components/Card";
 
 import logoImg from "../assets/images/logo.svg";
 
 import '../styles/adminHome.scss'
-import { Card } from "../components/Card";
 
 
 type FirebaseRooms = Record<string, {
@@ -55,8 +57,10 @@ export function AdminHome() {
   async function handleCreateRoom(event: FormEvent) { 
     event.preventDefault();
     
-    if (newRoom.trim() === '')
+    if (newRoom.trim() === ''){
+      toast.error('Informe o nome da sala')
       return;
+    }
       
     const roomRef = database.ref('rooms');
     const firebaseRoom = await roomRef.push({
@@ -98,6 +102,13 @@ export function AdminHome() {
           <p>
             Quer entrar em uma sala existente? <Link to="/">Clique aqui</Link>
           </p>
+        </div>
+
+        <div>
+            <Toaster
+                position="bottom-right"
+                reverseOrder={false}
+            />
         </div>
       </main>
     </div>
