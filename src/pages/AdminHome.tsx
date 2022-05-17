@@ -79,6 +79,7 @@ export function AdminHome() {
         <div  className="rooms-list">
           {rooms.map(room => {
               return <Card 
+                key={room.roomCode}
                 roomCode={room.roomCode} 
                 roomTitle={room.title}
                 countQuestions={room.countQuestions} />
