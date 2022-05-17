@@ -1,4 +1,4 @@
-import { FormEvent, useState } from 'react'
+import { FormEvent, useEffect, useState } from 'react'
 import { useHistory, useParams } from 'react-router-dom'
 
 import { useRoom } from '../hooks/useRoom'
@@ -27,6 +27,19 @@ export function Room() {
     const history = useHistory()
     const [newQuestion, setNewQuestion] = useState('');
     const {questions, title} = useRoom(roomCode);
+
+    useEffect(() => { 
+        async function validateExistingPage() {
+            const roomRef = await database.ref(`rooms/${roomCode}`).get();
+        
+            if (!roomRef.exists()) {
+                history.push('/')
+            }
+        }
+        validateExistingPage()
+        
+        // eslint-disable-next-line
+    }, [roomCode])
 
     async function handleSendQuestion(event: FormEvent) {
         event.preventDefault();

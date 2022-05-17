@@ -34,6 +34,15 @@ export function AdminRoom() {
     const [answerVisibility, setAnswerVisibility] = useState(0)
 
     useEffect( () => {
+        async function validateExistingPage() {
+            const roomRef = await database.ref(`rooms/${roomCode}`).get();
+        
+            if (!roomRef.exists()) {
+                history.push('/')
+            }
+        }
+        validateExistingPage()
+
         if (author && user?.id !== author)
             history.push(`/rooms/${roomCode}`)
 
