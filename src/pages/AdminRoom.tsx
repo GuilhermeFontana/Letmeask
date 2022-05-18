@@ -9,9 +9,9 @@ import { database } from '../services/firebase'
 import { Button } from '../components/Button'
 import { RoomCode } from '../components/RoomCode'
 import { Question } from '../components/Question'
+import { Logo } from '../components/Logo'
 import toast, { Toaster } from 'react-hot-toast'
 
-import logoImg from '../assets/images/logo.svg'
 import starImg from '../assets/images/star.svg'
 import answerImg from '../assets/images/answer.svg'
 import deleteImg from '../assets/images/delete.svg'
@@ -29,7 +29,7 @@ export function AdminRoom() {
     const { user } = useAuth();
     const history = useHistory();
     const { id: roomCode } = useParams<RoomParams>();
-    const {questions, title, author} = useRoom(roomCode);
+    const {questions, title, author, endedAt} = useRoom(roomCode);
     // eslint-disable-next-line
     const [answerVisibility, setAnswerVisibility] = useState(0)
 
@@ -49,8 +49,8 @@ export function AdminRoom() {
     // eslint-disable-next-line
     }, [user?.id, author])
 
-    //#region EndRoom
-    async function executeEndRoom() {
+    //#region CloseOpenRoom
+    async function executeCloseRoom() {
         return await new Promise(async function(resolve, reject) {
             await database.ref(`rooms/${roomCode}`).update({
                 endedAt: new Date()
@@ -59,16 +59,33 @@ export function AdminRoom() {
                 .catch((err) => reject(err));
         })
     }
-    async function handleEndRoom() {
-        await toast.promise(executeEndRoom(), {
-            loading: 'Enecrrando...',
-            success: <p>Sala encerrada</p>,
-            error: <p>Erro ao encerrar a sala</p>,
-          })
-
-        history.push('/')
+    async function executeOpenRoom() {
+        return await new Promise(async function(resolve, reject) {
+            await database.ref(`rooms/${roomCode}`).update({
+                endedAt: null
+            })
+                .then(() => resolve(true))
+                .catch((err) => reject(err));
+        })
     }
-    //#endregion EndRoom
+    async function handleCloseOpenRoom() {
+        if (!endedAt){
+            await toast.promise(executeCloseRoom(), {
+                loading: 'Encerrando...',
+                success: <p>Sala encerrada</p>,
+                error: <p>Erro ao encerrar a sala</p>,
+            })
+
+            history.push('/admin/rooms')
+        }
+        else 
+            await toast.promise(executeOpenRoom(), {
+                loading: 'Reabrindo...',
+                success: <p>Sala reaberta</p>,
+                error: <p>Erro ao reabrir a sala</p>,
+            })
+    }
+    //#endregion CloseOpenRoom
 
     //#region SendAnswer
     async function handleShowSendAnswer(questionId: string){
@@ -116,6 +133,8 @@ export function AdminRoom() {
             loading: 'Destacando...',
             success: <p>{succesMessage}</p>,
             error: <p>{errorMessage}</p>,
+          }, {
+              position: "bottom-right"
           })
     }
     //#endregion HighlightQuestion
@@ -199,10 +218,10 @@ export function AdminRoom() {
         <div id="page-room">
             <header>
                 <div className="content">
-                    <img src={logoImg} alt="Letmeask" />
+                    <Logo />
                     <div>
                         <RoomCode code={ roomCode } />
-                        <Button isOutlined onClick={handleEndRoom}>Encerrar Sala</Button>
+                        <Button isOutlined onClick={handleCloseOpenRoom}>{`${!!endedAt ? 'Reabrir' : 'Encerrar'} Sala`}</Button>
                     </div>
                 </div>
             </header>

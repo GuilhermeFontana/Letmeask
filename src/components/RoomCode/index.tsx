@@ -1,3 +1,5 @@
+import toast from 'react-hot-toast'
+
 import copyImg from '../../assets/images/copy.svg';
 
 import './style.scss'
@@ -12,6 +14,10 @@ export function RoomCode(props: RoomCodeProps) {
 
     function copyRoomCodeToClipboard () {
         navigator.clipboard.writeText(props.code)
+        
+        toast.success('Código copiado', {
+            position: "bottom-right"
+        })
     }
     
     return (

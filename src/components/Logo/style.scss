@@ -1,0 +1,17 @@
+.logo-buttom {
+    background: none;
+    border: none;   
+
+    .logo { 
+        height: 45px;
+
+        > img {
+            max-height: 45px;
+        }
+    }
+
+}
+
+.logo-buttom:hover { 
+    cursor: pointer;
+}

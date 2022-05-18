@@ -9,9 +9,8 @@ import { database } from '../services/firebase'
 import { Button } from '../components/Button'
 import { RoomCode } from '../components/RoomCode'
 import { Question } from '../components/Question'
+import { Logo } from '../components/Logo'
 import toast, { Toaster } from 'react-hot-toast'
-
-import logoImg from '../assets/images/logo.svg'
 
 import '../styles/room.scss'
 
@@ -26,7 +25,7 @@ export function Room() {
     const { id: roomCode } = useParams<RoomParams>();
     const history = useHistory()
     const [newQuestion, setNewQuestion] = useState('');
-    const {questions, title} = useRoom(roomCode);
+    const {questions, title, endedAt} = useRoom(roomCode);
 
     useEffect(() => { 
         async function validateExistingPage() {
@@ -34,6 +33,13 @@ export function Room() {
         
             if (!roomRef.exists()) {
                 history.push('/')
+            }
+
+            if(roomRef.val()["endedAt"]) {
+                toast.dismiss()
+                toast.error('Sala encerrada', {
+                    duration: 10000
+                })
             }
         }
         validateExistingPage()
@@ -95,7 +101,7 @@ export function Room() {
         <div id="page-room">  
             <header>
                 <div className="content">
-                    <img src={logoImg} alt="Letmeask" />
+                    <Logo />
                     <RoomCode code={ roomCode } />
                 </div>
             </header>
@@ -119,7 +125,7 @@ export function Room() {
                         ) : ( 
                           <span>Para enviar uma pergunta, <button type='button' onClick={() => history.push('/')}>faça seu login</button>.</span>
                         ) }
-                        <Button type="submit" disabled={!user}>Enviar pergunta</Button>
+                        <Button type="submit" disabled={!user || !!endedAt}>Enviar pergunta</Button>
                     </div>
                 </form>
 
