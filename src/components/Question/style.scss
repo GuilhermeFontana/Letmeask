@@ -4,9 +4,7 @@
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.04);
     padding: 24px;
     
-    transition: opacity 1.5s, transform 1.5s; 
-    opacity: 1;
-    transform: translate(0px, 0px);
+    animation: show-animation 1.5s;
     
     &.highlighted {
         background: #f4f0ff;
@@ -16,12 +14,6 @@
             color: #29292e;
         }
     }
-
-    &.hidden {
-        opacity: 0;
-        transform: translate(0px, -50px);
-    }
-
 
     // adiciona essas estilização para a classe '.question' apenas da segunda em dianet (SOMENTE PARA .scss)
     & + .question { 
@@ -111,5 +103,16 @@
         &.hidden {
             display: none;
         }
+    }
+}
+
+@keyframes show-animation {
+    from {
+        opacity: 0;
+        transform: translate(0px, -50px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0px, 0px);
     }
 }

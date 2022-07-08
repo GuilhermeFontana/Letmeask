@@ -11,13 +11,6 @@ type CardProps = {
 
 export function Card (props: CardProps) {
     const history = useHistory()
-    const [transitionState, setTransitionState] = useState(false)
-
-    useEffect(() => {
-        setTimeout(function () {
-            setTransitionState(true)}, 500
-        )
-    }, [])
     
     function adjustText(text: string){
         const wordsSplit = text.trim().split(' ')
@@ -40,7 +33,7 @@ export function Card (props: CardProps) {
 
 
     return (
-        <div className={`card ${!transitionState && 'hidden'}`}>
+        <div className={`card`}>
             <div  className={'card-title'}>
                 <strong>{adjustText(props.roomTitle)}</strong>
             </div>

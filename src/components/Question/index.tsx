@@ -18,21 +18,13 @@ type QuestionProps = {
 };
 
 export function Question(props: QuestionProps) {
-    const [transitionState, setTransitionState] = useState(false)
     const [newAnswer, setNewAnswer] = useState(props.answer?.trim());
-
-    useEffect(() => {
-        setTimeout(function () {
-            setTransitionState(true)}, 500
-        )
-    }, [])
 
     return (
         <div
             className={cn(
                 'question',
-                {highlighted: props?.isHighlighted ? true : false ?? false},
-                {hidden: !transitionState}
+                {highlighted: props?.isHighlighted ? true : false ?? false}
             )}
         >
             <p>{props.content}</p>

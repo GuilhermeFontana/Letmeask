@@ -12,14 +12,7 @@
     border-left: 5px solid #e559f9;
     transition: 0.3s;
 
-    transition: opacity 1.5s, transform 1.5s; 
-    opacity: 1;
-    transform: translate(0px, 0px);
-
-    &.hidden {
-      opacity: 0;
-      transform: translate(0px, 50px);
-    }
+    animation: show-animation 1.5s;
 
     .card-title {
         overflow: hidden;
@@ -75,4 +68,15 @@
 
 .card:hover {
     box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.7);
+}
+
+@keyframes show-animation {
+    from {
+        opacity: 0;
+        transform: translate(0px, 50px);
+    }
+    to {
+        opacity: 1;
+        transform: translate(0px, 0px);
+    }
 }
